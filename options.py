@@ -25,12 +25,12 @@ class Options(list):
         return strn
 
     def select_Option(self,opts):
-        disp = Chunks(opts.print_Options);disp.create_Chunks()
+        disp = Chunks(opts);disp.create_Chunks();i=0
         while i < len(disp.chunk_list):
             print disp
             nekst = raw_input("SMS in: ")
             bacfin = finder(r'back',nekst)
-            if backfin.found():
+            if bacfin.found():
                 if disp.position == 0:
                     continue
                 else:
@@ -41,13 +41,16 @@ class Options(list):
                 print ", ".join([i for i in disp.find_Chunks(nekst[finfin.endpos():])])
             exifin = finder(r'exit',nekst)
             if exifin.found():
-                break
+                return 'exit'
             disp.position+=1;i+=1
+            for j in range(len(self)):
+                if nekst.lower() == self[j][0]:
+                    return j
         
-        choice = raw_input("SMS in: ")
-        for i in range(len(self)):
-            if choice.lower() == self[i][0]:
-                return i
+        return None
+        
+
+        
             
     def __list__(self):
         return self
@@ -55,7 +58,23 @@ class Options(list):
 #test = Options()
 #test.add_Option("0 - Ratings : 1")
 #print test
-           
+#for j in [1,2,3,4]:
+#    if opts == None:
+#        opts = Options(heading="By ({0}) Did you mean: ".format('test'),
+#                           footing="Please choose.")
+#    opts.add_Option(content="{0}".format(j))
+#    
+#    if opts:
+#                ch = opts.select_Option(opts.print_Options())
+#                corr.append([i,str(opts[ch][1])])
+#            opts = None
+#        print corr
+#        for k in corr:
+#            if str(k[1]) in self.corrected:
+#                self.corrected[str(k[1])]= [k[0]]
+#            else:
+#                self.corrected[str(k[1])].append(k[0])
+#        return com.disting(command)['words']           
 
 
 class Chunks(str):
