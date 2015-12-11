@@ -2,7 +2,7 @@
 
 class Helper(str):
     
-    def __init__(self,scope,detail=""):
+    def __init__(self):
         self.helper = {'dine':"""Enter address or location. 
 Optional - You may also include a keyword (eg vegetarian): """,
                        'time':"""Usage: send [<city name>] to set current location and see the time or \n
@@ -13,9 +13,12 @@ more help with reminders available with [help schedule]""",
 based on current location. send [schedule in <4 digit time 1650> ] to schedule \n
 reminder in 16 hours and 50 mins. send [schedule at <hhmm eg. 1650> \n
 <ddmmyyyy eg. 25052016]>] to schedule reminder at 16:50 on 25/5/2016 \n
-add a <text> to either of the above commands to include a message in your reminder"""}
-        self.scope = scope
-        self.detail = detail
+add a <text> to either of the above commands to include a message in your reminder""",
+                        'main':"""use directory or time to access these modules"""}
+
+        self.list = []
+        for i in self.helper:
+            self.list.append(i)
     
     def entitymap(self):
         ent = {'PERSON':'People, including fictional.',
@@ -58,9 +61,21 @@ add a <text> to either of the above commands to include a message in your remind
 'subway_station','synagogue','taxi_stand','train_station','travel_agency',
 'university','veterinary_care','zoo']
         return dirs
+    
+    def foodtypes(self):
+        foods = ["italian","pizza","bacon","mexican","chinese","japanese",
+                 "barbeque","vietnamese","food","takeaway","delivery",
+                 "restaraunt","cafe","vegetarian","lebanese","indian","menu",
+                 "thai","indonesian","grill","bar","french","seafood","vegan"]
+        return foods
+    
+    def addresstypes(self):
+        places = ["london","uk","manchester","new york","city","postcode",
+                  "address", "street","county","state","postal"]
+        return places
 
-    def __str__(self):
-        return self.helper[self.scope+self.detail]
+    def __str__(self,scope="main",detail=""):
+        return self.helper[scope+detail]
 
 ##test = Helper('dine')
 ##print test
