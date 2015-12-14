@@ -126,9 +126,9 @@ class Main(object):
             if opts:
                 ch = opts.select_Option(opts.print_Options())
                 if ch == 'exit':
-                    return com.cur()['words']
+                    return [com.cur()['words'],com.history]
                 if ch!=None:
-                    corr.append([i,str(opts[ch][2])])
+                    corr.append([i,str(opts[ch][1])])
             opts = None
         for k in corr:
             if str(k[1]) in self.corrected:

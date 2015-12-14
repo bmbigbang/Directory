@@ -34,12 +34,13 @@ class Options(list):
                 if disp.position == 0:
                     continue
                 else:
-                    i-=1; disp.position-=1
-            finfin = finder(r'find',nekst)
+                    i-=1; disp.position-=1;continue
+            finfin = finder(r'^find',nekst.lower())
             if finfin.found():
                 print "found on these pages:"
-                print ", ".join([i for i in disp.find_Chunks(nekst[finfin.endpos():])])
-            exifin = finder(r'exit',nekst)
+                print ", ".join([i for i in disp.find_Chunks(nekst[finfin.endpos()+1:])])
+                continue
+            exifin = finder(r'exit',nekst.lower())
             if exifin.found():
                 return 'exit'
             disp.position+=1;i+=1
