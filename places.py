@@ -10,6 +10,7 @@ class Directory(object):
         self.args = args
         
     def run(self,resu,resu2,types,keywords,others):
+        types2="";keywords2="";address2=""
         while True:
             base = "https://maps.googleapis.com/maps/api/geocode/json?"
             print """directory section active."""
@@ -22,31 +23,36 @@ class Directory(object):
             if 'exit' in self.args:
                 break
 
-            if len(types)>1:
-                types = "&types=" + "|".join([h[0] for h in types])
-            elif len(types)==1:
-                types = "&types={0}".format(types[0][0])
+            if len(types)>1 and len(types2)==0:
+                types2 = "&types=" + "|".join([h[0] for h in types])
+            elif len(types)==1 and len(types2)==0:
+                types2 = "&types={0}".format(types[0][0])
+            elif len(types2)>0:
+                pass
             else:
-                types = ""
+                types2 = ""
       
-            if len(keywords)>=2:
-                keywords = "&keyword="+ "+".join(keywords)
-            elif len(keywords)==1:
-                keywords = "&keyword={0}".format(keywords[0])
+            if len(keywords)>=2 and len(keywords2)==0:
+                keywords2 = "&keyword="+ "+".join(keywords)
+            elif len(keywords)==1 and len(keywords2)==0:
+                keywords2 = "&keyword={0}".format(keywords[0])
+            elif len(keywords2)>0:
+                pass
             else:
-                keywords = ""
+                keywords2 = ""
                 
                         
-            if len(self.args+others)>=2:
-                address = "address="+"+".join(self.args+others)
-            elif len(self.args+others)==1:
-                address = "address={0}".format((self.args+others)[0])
+            if len(self.args+others)>=2 and len(address2)==0:
+                address2 = "address="+"+".join(self.args+others)
+            elif len(self.args+others)==1 and len(address2)==0:
+                address2 = "address={0}".format((self.args+others)[0])
+            elif len(address2)>0:
+                pass
             else:
-                address = "address="
-                
-            
+                address2 = ""
+
             key="&key=AIzaSyAgcnAoMCuhgMwXLXwRuGiEZmP0T-oWCRM"
-            addressurl = base + address + key
+            addressurl = base + address2 + key
             
             req = urllib2.Request(addressurl)
             html = urllib2.urlopen(req).read()
@@ -57,14 +63,15 @@ class Directory(object):
                 location= lat+","+ lng
                 location = "location=" + location
             except IndexError:
-                print "location not found"
-        
+                print "location not found, please try again"
+                break
+
         
             base = "https://maps.googleapis.com/maps/api/place/radarsearch/json?"
         
             radius = "&radius=5000"
         
-            final = base+location+radius+types+keywords+key
+            final = base+location+radius+types2+keywords2+key
             req = urllib2.Request(final)
             html = urllib2.urlopen(req).read()
             data = json.loads(html)

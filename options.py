@@ -128,7 +128,7 @@ class Chunks(str):
     
     def display_Chunks(self):
         i=0
-        while i < len(self.chunk_list)-1:
+        while i < len(self.chunk_list):
             print self
             nekst = raw_input("SMS in: ")
             bacfin = finder(r'back',nekst)
@@ -137,6 +137,7 @@ class Chunks(str):
                     continue
                 else:
                     i-=1; self.position-=1
+                    continue
             finfin = finder(r'find',nekst)
             if finfin.found():
                 print "found on these pages:"
