@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
-import collections,re,csv,codecs,operator,enchant
+import collections,csv,codecs,operator,enchant
 from misc import finder,alphabet
 from time import time
 from places import Directory
 from helper import Helper
 from options import Options,Chunks
-import os,numpy,spacy
-from spacy.en import English, LOCAL_DATA_DIR
-data_dir = os.environ.get('SPACY_DATA',LOCAL_DATA_DIR)
-try:
-    aeghaehtaeh = nlp(unicode('s'))
-except:
-    nlp = English(data_dir=data_dir)
+from spacyapi import tokenizer,similarity
+
 global hlp
 hlp = Helper()
  
@@ -34,7 +29,7 @@ class Main(object):
                 if dirfin.found():
                     del words[k];resu={};types=[];resu2={};keywords=[];d=[]
                     for j in hlp.dirtypes():
-                        test2 = similarity(words,j.replace('_',' '))
+                        test2 = similarity(" ".join(words),j.replace('_',' '))
 
                         for s in words:
                             if len(test2)==0:
@@ -63,7 +58,7 @@ class Main(object):
                     d=[]
                     
                     for j in hlp.addresstypes():
-                        test4 = similarity(words,j)
+                        test4 = similarity(" ".join(words),j)
 
                         for s in words:
                             if len(test4)==0:
@@ -174,28 +169,17 @@ class Corrector(object):
             for row in csvreader:
                 try:
                     setdir[filename].append(row[1])
-
                 except UnicodeEncodeError:
                     print("error with encoding:"+row[1])
                     continue
 
-
     def disting(self,text):
         
-        tokenizer = [];entities=[];types={};doc = nlp(unicode(text))
-        for token in doc:
-            tokenizer.append(str(token.orth_))
-            if str(token.pos_) in types:
-                types[token.pos_].append(str(token.orth_))
-            else:
-                types[token.pos_]=[str(token.orth_)]
-        for ents in doc.ents:
-            entities.append([str(ents.orth_),str(ents.label_)])
-            
-        dicfin = {'tokens':tokenizer,'entities':entities,'types':types,
+        sptok = tokenizer(text);tokens = sptok['tokens']
+        entities= sptok['entities']; types=sptok['types']
+        dicfin = {'tokens':tokens,'entities':entities,'types':types,
                   'words':[],'times':[],'numbers':[],'splits':[]}
-        
-        for i in tokenizer:
+        for i in tokens:
             timefinder = finder(r'[-|/|:|@|\\]',i)
             if timefinder.found():
                 dicfin['times'].append(i)
@@ -291,41 +275,11 @@ class Corrector(object):
         else:
             return True   
 
-def similarity(sentence,sen2 = ""):
-    res={}; doc = nlp(unicode(sentence))
-    if len(sen2)==0:
-        doc2 = nlp(unicode(sentence))
-    else:
-        doc2 = nlp(unicode(sen2))
-    
-    for i in doc:
-        for j in doc2:
-            if str(i.pos_)!='PUNCT' and str(j.pos_)!='PUNCT':
-                if str(i.pos_)!='NUM' and str(j.pos_)!='NUM':
-                    if str(i.orth_) in res:
-                        res[str(i.orth_)].append([str(j.orth_),i.similarity(j)])
-                    else:
-                        res[str(i.orth_)]=[[str(j.orth_),i.similarity(j)]]
-    for i in res:
-        res[i]=sorted(res[i],key=operator.itemgetter(1),reverse=True)
-        res[i].append(sum([j[1] for j in res[i]])/len(res[i]))
-    return res
-    
 #    def correlate()
     
-def lemma(sentence):
-    res=[]; doc = nlp(unicode(sentence))
-    for token in doc:
-        try:
-            res.append([token.orth_,token.lemma_])
-        except:
-            res.append([token.orth_,""])
-    return res
+
         
-
-            
-            
-
+          
 
 test3 = Main()
 test3.run()
