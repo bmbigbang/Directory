@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import collections,csv,codecs,operator,enchant
+import collections,csv,codecs,operator
 from misc import finder,alphabet
 from time import time
 from places import Directory
@@ -22,72 +22,36 @@ class Main(object):
         
         test = Main();br=True
         while br:
-            command = raw_input("SMS in: ");t = test.process(command)
+            command = raw_input("SMS in: ");t = test.process(unicode(command))
             words = t[0];disting = t[1][-1]
             for k in range(len(words)):
                 dirfin = finder(r'directory|places',words[k])
                 if dirfin.found():
-                    del words[k];resu={};types=[];resu2={};keywords=[];d=[]
-                    for j in hlp.dirtypes():
-                        test2 = similarity(" ".join(words),j.replace('_',' '))
-
-                        for s in words:
-                            if len(test2)==0:
-                                break
-                            if s in resu:
-                                resu[s].append([j,test2[s][-1]])
-                            else:
-                                resu[s]= [[j,test2[s][-1]]]
-                    for h in words:
-                        if h in resu:
-                            resu[h] = sorted(resu[h],key=operator.itemgetter(1),reverse=True)
-                            resu[h] = resu[h][:4]
-                    for wo in resu:
-                        for dirtypes in resu[wo]:
-                            if dirtypes[1]>=0.5:
-                                types.append([dirtypes[0],dirtypes[1]])
-                                  
-                                for i in range(len(words)):
-                                    if words[i] == wo:
-                                        if (i in d) == False:
-                                            d.append(i)
-                    
+                    del words[k];types=[];keywords=[];d=[]
+                    test2 = similarity(" ".join(words)," ".join(hlp.dirtypes()),sort=True,average=False)
+                    for s in words:
+                        for k in test2[s][:4]:
+                            if k[1]>=0.5:
+                                types.append(k[0])
+                                if (s in d) == False:
+                                    d.append(s)
                     for i in d:
-                        keywords.append(words[i])
-                        del words[i]
+                        keywords.append(s)
+                        del words[words.index(i)]
                     d=[]
-                    
-                    for j in hlp.addresstypes():
-                        test4 = similarity(" ".join(words),j)
-
-                        for s in words:
-                            if len(test4)==0:
-                                break
-                            if s in resu2:
-                                resu2[s].append([j,test4[s][-1]])
-                            else:
-                                resu2[s] = [[j,test4[s][-1]]]
-                               
-                    for h in words:
-                        if h in resu2:
-                            resu2[h] = sorted(resu2[h],key=operator.itemgetter(1),reverse=True)
-                            resu2[h] = resu2[h][:5]
+                    test4 = similarity(" ".join(words)," ".join(hlp.addresstypes()),average=True)
                             
-                    for wo in resu2:
-                        for keyword in resu2[wo]:
-                            if keyword[1]>=0.5:
+                    for wo in test4:
+                        for keyword in test4[wo]:
+                            if keyword[-1]>=0.5:
                                 break
-                            for i in range(len(words)):
-                                if words[i] == wo:
-                                    if (i in d) == False:
-                                        d.append(i)
-                                            
+                            elif (i in d) == False:
+                                d.append(i)
                     for i in d:
-                        del words[i]      
-                        
+                        del words[words.index(i)] 
                     others=disting['numbers']+disting['splits']
                     direc=Directory(words)
-                    direc.run(resu,resu2,types,keywords,others)
+                    direc.run(types,keywords,others)
                     print "Back to Main Menu."
                     words = [];break
                       
@@ -268,13 +232,13 @@ class Corrector(object):
         else:
             return resultsorted
             
-    def spellcheck(self,word):
-        d = enchant.Dict("en_US")
-        if d.check(word.lower()) == False:
-            return d.suggest(word.lower())
-        else:
-            return True   
-
+#    def spellcheck(self,word):
+#        d = enchant.Dict("en_US")
+#        if d.check(word.lower()) == False:
+#            return d.suggest(word.lower())
+#        else:
+#            return True   
+            
 #    def correlate()
     
 

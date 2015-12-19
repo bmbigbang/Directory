@@ -70,7 +70,7 @@ add a <text> to either of the above commands to include a message in your remind
         return foods
     
     def addresstypes(self):
-        places = ["london","uk","manchester","new york","city","postcode",
+        places = ["london","uk","manchester","new_york","city","postcode",
                   "address", "street","county","state","postal"]
         return places
 
