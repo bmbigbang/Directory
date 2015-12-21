@@ -4,6 +4,7 @@ from misc import finder,alphabet
 from helper import Helper
 
 class Directory(object):
+    hlp = Helper()
     def __init__(self,args):
         self.args = args
         

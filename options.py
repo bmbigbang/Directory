@@ -1,53 +1,38 @@
 # -*- coding: utf-8 -*-
+"""
+Created on Wed Dec 16 11:30:39 2015
+
+@author: ardavan
+"""
 from misc import alphabet,finder
 
 class Options(list):
    #Creates and manages an option list
     def __init__(self,lang="english",heading="",footing=""):
         self.lang = lang
-        self.position = 0
         self.heading = heading
         self.footing = footing
 
-    def add_Option(self,content):
-        ab = alphabet(self.lang)
-        alpha= ab.retstr()
+    def add_Option(self,content,title=""):
+        ab = alphabet(self.lang);alpha= ab.retstr()
         letter = alpha[len(self)]
-        line = [letter,content.decode('utf-8')]
-        self.position+=1
+        line = [letter,title,content.decode('utf-8')]
         self.append(line)
         
     def print_Options(self):
-        strn=""
+        strn=""; 
         for i in self:
-            strn+=i[0]+") " +i[1] + "\n"
+            if i[1]:
+                strn+=i[0] + ") " + i[1] + " " + i[2] + "\n"
+            else:
+                strn+=i[0] + ") " + i[2]+ "\n"
         return strn
 
-    def select_Option(self,opts):
-        disp = Chunks(opts);disp.create_Chunks(footing=self.footing,heading="");i=0
-        print self.heading
-        while i < len(disp.chunk_list):
-            print disp
-            nekst = raw_input("SMS in: ")
-            bacfin = finder(r'back',nekst)
-            if bacfin.found():
-                if disp.position == 0:
-                    continue
-                else:
-                    i-=1; disp.position-=1;continue
-            finfin = finder(r'^find',nekst.lower())
-            if finfin.found():
-                print "found on these pages:"
-                print ", ".join([i for i in disp.find_Chunks(nekst[finfin.endpos()+1:])])
-                continue
-            exifin = finder(r'exit',nekst.lower())
-            if exifin.found():
-                return 'exit'
-            disp.position+=1;i+=1
-            
-            for j in range(len(self)):
-                if nekst.lower() == self[j][0]:
-                    return j
+    def select_Option(self,option):
+        print option
+        for j in range(len(self)):
+            if unicode(option.lower()) == self[j][0]:
+                return j
         return None
         
     def __list__(self):
@@ -93,29 +78,68 @@ class Chunks(str):
             heading = heading+"\n"
         if len(footing)>0:
             footing = "\n"+footing
-            
-        chunks = []
-        chunksize = self.size - (len(heading)+len(footing))
-        maxpos = len(self.text)/chunksize
-        lastsize = len(self.text)%chunksize
-        temp = ""
-        for i in range(maxpos+1):
-            if i == maxpos:
-                temp = heading + self.text[(i*chunksize):((i*chunksize)+lastsize)] + footing
-                if len(temp)>0:
-                    chunks.append(temp)
-                break
-            temp = heading + self.text[(i*chunksize):((i+1)*chunksize)] + footing
-            chunks.append(temp)
-
-        for i in range(len(chunks)):
-
-            if chunks[i][-1] == "\\" and chunks[i+1][0] == "n":
-                if (lastsize+1)>chunksize:
-                    chunks.append("")
-                j=len(chunks)-1
-                while i<j<len(chunks):
-                    chunks[j]=chunks[j-1][-1]+chunks[j][1:];j-=1
+        content=self.text; chunks = [];added = 0;i=0
+        if (len(self.text)+len(heading)+len(footing)) <= self.size:            
+            self.chunk_list = [heading+content+footing]
+            return None
+        else:
+            chunksize = self.size - (len(footing)+9)
+        maxpos = (len(self.text)+len(heading))/chunksize
+        lastsize = (len(self.text)+len(heading))%chunksize
+        temp = heading + content[:(chunksize-len(heading))]
+        if len(temp)>(chunksize-len(heading)-20):
+            k = temp.find("\n",-14);finspa = len(temp.split()[-1])+1
+            if k > 0:
+                added +=(chunksize-k)
+                temp = temp[:k]
+                if len(temp) + 3 + len(footing)<=self.size:
+                    chunks.append(temp+"..."+footing)
+                else:
+                    chunks.append(temp+footing)
+                content = content[(k-len(heading)):]
+            elif temp.find(" ",-10) != -1:
+                added += (finspa)
+                temp = temp[:-(finspa)]
+                chunks.append(temp+footing)
+                content = content[(chunksize-finspa):]
+            elif len(temp)!=0:
+                chunks.append(temp+footing);content = content[chunksize:]
+        else:
+            chunks.append(temp+footing);content = content[(chunksize-len(heading)):]
+        if lastsize+added>chunksize:
+            maxpos = (len(self.text)+len(heading)+added)/chunksize
+            lastsize = (len(self.text)+len(heading)+added)%chunksize
+            added = 0
+        while i < maxpos+1:
+            temp = content[:chunksize]
+            if len(temp)>(chunksize-20):
+                k = temp.find("\n",-14);finspa = len(temp.split()[-1])+1
+                if k > 0:
+                    added +=(chunksize-k)
+                    temp = temp[:k]
+                    if len(temp) + 3 + len(footing)<=self.size:
+                        chunks.append(temp+"..."+footing)
+                    else:
+                        chunks.append(temp+footing)
+                    content = content[k:]
+                elif temp.find(" ",-10) != -1:
+                    added += (finspa)
+                    temp = temp[:-(finspa)]
+                    chunks.append(temp+footing)
+                    content = content[(chunksize-finspa):]
+                elif len(temp)!=0:
+                    chunks.append(temp+footing);content = content[chunksize:]
+            elif len(temp)!=0:
+                chunks.append(temp+footing);content = content[chunksize:]
+            if lastsize+added>chunksize:
+                maxpos = (len(self.text)+len(heading)+added)/chunksize
+                lastsize = (len(self.text)+len(heading)+added)%chunksize
+                added = 0
+            i+=1
+        counter=1;count = len(chunks)
+        for i, chunk in enumerate(chunks):
+            chunks[i] = chunk+"\n"+'%02d of %02d' % (counter, count)
+            counter = counter + 1
         self.chunk_list = chunks
         
     def find_Chunks(self,word):
@@ -126,28 +150,15 @@ class Chunks(str):
                 res.append([len(findword.findall()),i])
         return res
     
-    def display_Chunks(self):
-        i=0
-        while i < len(self.chunk_list):
-            print self
-            nekst = raw_input("SMS in: ")
-            bacfin = finder(r'back',nekst)
-            if bacfin.found():
-                if self.position == 0:
-                    continue
-                else:
-                    i-=1; self.position-=1
-                    continue
-            finfin = finder(r'find',nekst)
-            if finfin.found():
-                print "found on these pages:"
-                print ", ".join([i for i in self.find_Chunks(nekst[finfin.endpos():])])
-                continue
-            exifin = finder(r'exit',nekst)
-            if exifin.found():
-                return None
-            self.position+=1;i+=1    
-        return None
+    def next_Chunk(self):
+        self.position+=1; return self
+        
+    def goto_Chunk(self,number=1):
+        if 1 <= number <= len(self.chunk_list)+1:
+            self.position = number-1; return self
+        else:
+            return "Number out of range."
+
         
     
 
