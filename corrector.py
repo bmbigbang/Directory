@@ -11,7 +11,7 @@ from helper import Helper
 hlp = Helper()
 
 class Corrector(object):
-    def __init__(self,scope='main'):
+    def __init__(self,scope='main',history={}):
         self.scope = scope  ## scope must be the same as filename (without .txt)
         self.commands = {"time":["schedule","remind","between", "difference"],
                          "langs":["eng","spa"],
@@ -26,7 +26,7 @@ class Corrector(object):
         self.lang = {"eng":"english","spa":"spanish"}
         self.langsel = "eng"
         self.history = []
-        self.correctedHistory = {}
+        self.correctedHistory = history
         self.current = {}
     
     def cur(self):
@@ -81,7 +81,7 @@ class Corrector(object):
         return temp
     
     def match(self,word):
-        if word in self.commands[self.scope]:
+        if word in self.commands[self.scope] or len(word)==1:
             return [("None",10)]
         if self.matchHist(word) != None:
             return[(self.matchHist(word),0)]

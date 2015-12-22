@@ -51,7 +51,7 @@ class Directory(object):
         
             base2 = "https://maps.googleapis.com/maps/api/place/details/json?"
             results = {};resultsratings = {}
-            for i in range(3):
+            for i in range(4):
                 try:
                     placeid = "placeid=" + data['results'][i]['place_id']
                 except IndexError:
@@ -82,21 +82,23 @@ class Directory(object):
                     results[placedata['result']['name']].append("telephone not found")
             
             resultsort = sorted(resultsratings.items(),key = operator.itemgetter(1),reverse=True)
-            display = Options('english',heading="Available places found nearby:",
-                              footing="Type next-back-find or choose an option. ") 
-            for i in resultsort:
-                display.add_Option(content="{0} - Ratings : {1}".format(i[0].encode('utf-8'),str(i[1])))
-            ch = display.select_Option(display.print_Options())
-            if ch == 'exit':
-                break
-            if ch!=None:
-                text = "{0} - Ratings : {1}".format(resultsort[ch][0],resultsort[ch][1])
-                text += "\n" +" Telephone Number: " + results[resultsort[ch][0]][1]
-                text += "\n Address: "+results[resultsort[ch][0]][0]
-                displayc = Chunks(text)
-                displayc.create_Chunks(footing="Type next-back-find or exit to cancel")
-                displayc.display_Chunks()    
-                break
+            return results,resultsort
+#            opts = Options() 
+#            for i in resultsort:
+#                opts.add_Option(content="{0} - Ratings : {1}".format(i[0].encode('utf-8'),str(i[1])))
+#            display = Chunks(opts.print_Options())
+#            display.create_Chunks(heading="Available places found nearby:",
+#                              footing="Type next-back-find or choose an option. ")
+#            print display.goto_Chunk()
+#            option = raw_input("SMS in: ")
+#            if opts.select_Option(option)!=None:
+#                text = "{0} - Ratings : {1}".format(resultsort[ch][0],resultsort[ch][1])
+#                text += "\n" +" Telephone Number: " + results[resultsort[ch][0]][1]
+#                text += "\n Address: "+results[resultsort[ch][0]][0]
+#                displayc = Chunks(text)
+#                displayc.create_Chunks()
+#                print display.goto_Chunk()
+
 
             
     

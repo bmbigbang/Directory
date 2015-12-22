@@ -29,7 +29,6 @@ class Options(list):
         return strn
 
     def select_Option(self,option):
-        print option
         for j in range(len(self)):
             if unicode(option.lower()) == self[j][0]:
                 return j
@@ -65,6 +64,7 @@ class Chunks(str):
         self.size = 140
         self.text = text
         self.chunk_list=[]
+        self.find_chunks=[]
         self.position=0
     
     def __str__(self):
@@ -147,8 +147,11 @@ class Chunks(str):
         for i in range(len(self.chunk_list)):
             findword = finder(r'{0}'.format(word.lower().decode('utf-8')),self.chunk_list[i])
             if findword.found():
-                res.append([len(findword.findall()),i])
-        return res
+                res.append(i+1)
+        if len(res) > 0:
+            return res
+        else:
+            return None
     
     def next_Chunk(self):
         self.position+=1; return self
@@ -172,7 +175,7 @@ class Chunks(str):
 #test = Chunks(testtext)
 #test.create_Chunks(footing="test text:")
 #
-#test.display_Chunks()
+#
 #
 #
 #print map(lambda x:len(x),test.chunk_list)
