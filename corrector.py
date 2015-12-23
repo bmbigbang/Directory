@@ -81,6 +81,8 @@ class Corrector(object):
         return temp
     
     def match(self,word):
+        if word == "find":
+            return [("find",11)]
         if word in self.commands[self.scope] or len(word)==1:
             return [("None",10)]
         if self.matchHist(word) != None:
@@ -105,12 +107,11 @@ class Corrector(object):
                         results[j[0]]=int(wordc[i])
         rem = []
         for i in results:
-            results[i]+=abs(1.0-((len(word)*1.0)/len(i)))
+            results[i]+=abs(1.0-((len(word)*1.2)/len(i)))
         
         for i in results:
             if results[i] >= 3.33:
                 rem.append(i)
- 
             else:
                 for j in hashtable:
                     if j[0] == i:
@@ -128,7 +129,7 @@ class Corrector(object):
                 except:
                     pass
                 
-            if results[i] >= 7 and (i in rem)==False:
+            if results[i] >= 6 and (i in rem)==False:
                 rem.append(i)  
 
         for i in rem:

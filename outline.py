@@ -14,9 +14,8 @@ class Outline(str):
         self.levels = {'levels':[0,0,0,0,0,0,0,0,0]}
         self.expand = {}
         self.level = 0
-        self.position = 0
-        self.heading = ""
-        self.footing = "" 
+        self.select = False
+        self.lvl=False
         self.plus = False
     
     def add_Section(self,title="",content=""):
@@ -70,41 +69,38 @@ class Outline(str):
         if title:
             self.add_Section(title,content)
             
-    def output_Outline(self,outline="",lvl=False):
-        strg = "";temp= []
-        if self.heading:
-            strg = self.heading+"\n"
-        if not outline:
-            for i in range(0,len(self.outline_table)):
-                if self.outline_table[i][0][:-1] in self.expand:
-                    if self.expand[self.outline_table[i][0][:-1]] == 1:
-                        if not lvl and self.outline_table[i][0].count(".") == self.level:
-                            strg = strg+self.outline_table[i][0].replace("+","-")+" "+self.outline_table[i][1]+"\n" 
-                        for j in self.outline_table[i+1:]:
-                            if self.outline_table[i][0][:-1] in j[0]:
-                                if j[0][-1]!="+" and j[0][-1]!="-":
-                                    temp.append(j[0])
-                            else:
-                                break
-                        continue
-                    elif not lvl and self.outline_table[i][0].count(".") == self.level:
-                        strg = strg+self.outline_table[i][0].replace("-","+")+" "+self.outline_table[i][1]+"\n" 
-                        continue
-                else:
-                    if lvl and self.outline_table[i][0].count(".") != self.level:
-                        continue
-                    if self.outline_table[i][0] in temp:
-                        strg = strg+self.outline_table[i][0]+" "+self.outline_table[i][1]+"\n"
-                        continue
-                    elif not "." in self.outline_table[i][0]:
-                        strg = strg+self.outline_table[i][0]+" "+self.outline_table[i][1]+"\n"
-
+    def output_Outline(self,chap=""):
+        strg = "";temp= [];outline=[]
+        if self.select:
+            for i in self.outline_table:
+                if i[0].startswith(chap):
+                    outline.append(i)
         else:
-            strg += self.outline_table[self.outline_table.index(outline[0])-1][1] + "\n"
-            for i in range(0,len(outline)):
-                strg = strg+outline[i][0]+" "+outline[i][1]+"\n"
-        if self.footing:
-            strg = strg+self.footing+"\n"
+            outline = self.outline_table
+        for i in range(len(outline)):
+            if outline[i][0][:-1] in self.expand:
+                if self.expand[outline[i][0][:-1]] == 1:
+                    if not self.lvl and outline[i][0].count(".") == self.level:
+                        strg = strg+outline[i][0].replace("+","-")+" "+outline[i][1]+"\n" 
+                    for j in outline[i+1:]:
+                        if self.outline_table[i][0][:-1] in j[0]:
+                            if j[0][-1]!="+" and j[0][-1]!="-":
+                                temp.append(j[0])
+                        else:
+                            break
+                    continue
+                elif not self.lvl and outline[i][0].count(".") == self.level:
+                    strg = strg+outline[i][0].replace("-","+")+" "+outline[i][1]+"\n" 
+                    continue
+            else:
+                if self.lvl and outline[i][0].count(".") != self.level:
+                    continue
+                if outline[i][0] in temp:
+                    strg = strg+outline[i][0]+" "+outline[i][1]+"\n"
+                    continue
+                elif not "." in outline[i][0]:
+                    strg = strg+outline[i][0]+" "+outline[i][1]+"\n"
+
         if len(strg)==0:
             return "No items found"
         return strg  
@@ -132,11 +128,12 @@ class Outline(str):
         else:
             return "Secton not found"
     
-    def txt_Outline(self):
-        strg = ""
+    def txt_Check(self,outline):
         for i in range(0,len(self.outline_table)):
-            strg = strg+self.outline_table[i][0]+" "+self.outline_table[i][1]+"\n"
-        return strg
+            if outline in self.outline_table[i][0]:
+                if len(self.outline_table[i][2])>0:
+                    return True
+        return False
     
 table = Outline()
 table.delimeter = "\n"
@@ -147,7 +144,6 @@ with open("textblock.txt","rb") as f:
             textblock= textblock[:i]+unichr(int(textblock[i+2:i+6],base=16)).encode("utf-8")  +textblock[i+6:]
 f.close()
 table.add_TxtBlock(textblock); corr = Corrector('outline')
-section = Chunks(table.txt_Outline())
  
 while 1:
     sms_in = raw_input("SMS IN: ").lower()
@@ -183,109 +179,63 @@ while 1:
             opts = None
             
     if "tables" in s:
+        for p in table.expand:
+            table.expand[p] = 0
         section = Chunks(table.output_Outline())
-        section.create_Chunks(heading = "Outline",
-                              footing = "Select Outline Number" )              
+        section.create_Chunks(heading = "Outline Table")              
         print section.goto_Chunk(1) 
         
     if "expand" in s:
         if "all" in s:
             for p in table.expand:
-                table.exp_col(p)
+                table.expand[p] = 1
             section = Chunks(table.output_Outline())
-            section.create_Chunks(heading = "Outline",
-                                  footing = "Select Outline Number" )              
+            section.create_Chunks(heading = "Outline Table - Expanded All")              
             print section.goto_Chunk(1) 
             continue   
         if len(numbers) > 0 and numbers[0] in table.expand:
-            table.exp_col(numbers[0])
-            section = Chunks(table.output_Outline())
-            section.create_Chunks(heading = "Outline",
-                                  footing = "Select Outline Number" )   
-            expand = section.find_Chunks(numbers[0])
-            if expand:
-                print section.goto_Chunk(expand[0])
-            else:
-                print section.goto_Chunk()
-            continue
-                   
-    if "find" in s:
-        del s[s.index("find")]
-        section.create_Chunks(heading="Find {0}".format(" ".join(s)),
-                              footing = "Select Outline Number" ) 
-        expand = section.find_Chunks(" ".join(s))
-        if expand:
-            print section.goto_Chunk(expand[0])
-        else:
-            print "No results found"
-        continue
-    
-    if "exit" in s:
-        break 
-    
-    if "next" in s:
-        print section.next_Chunk()
-        continue
-            
-    if "goto" in s:
-        n = sms_in.split(" ")
-        try:
-            num = int(n[1])
-        except:
-            num = 1000
-        print section.goto_Chunk(num)  
-        continue
+            table.expand[numbers[0]] = 1;table.select=True
+            section = Chunks(table.output_Outline(chap=numbers[0]))
+            section.create_Chunks(heading = "Expanded Chapter {0}".format(numbers[0]))   
+            print section.goto_Chunk()
+            table.select=False; continue
     
     if "level" in s:   
         for i in numbers:
             if int(i) != 1:
+                table.lvl=True
                 for p in table.expand:
                     table.expand[p] = 1
+            else:
+                table.lvl=False
             table.level = int(i)-1
-            section = Chunks(table.output_Outline(lvl=True))
+            section = Chunks(table.output_Outline())
             section.create_Chunks(heading = "Level {0} - Outline".format(i),
                                   footing = "Select Outline Number" ) 
-            print section.goto_Chunk() 
-            for p in table.expand:
-                table.expand[p] = 0
+            print section.goto_Chunk()
         continue    
         
-#    for i in numbers:
-#        if table.set_Level == 1:
-#            for p in table.expand:
-#                table.expand[p]=1
-#            if len(i)==1:
-#                tst = [];tst2=[]
-#                for asd in range(len(table.outline_table)):
-#                    if int(table.outline_table[asd][0][0])==int(i) and table.outline_table[asd][0].count(".")==table.level:
-#                        tst.append(asd)
-#                for asd2 in tst:
-#                    tst2.append(table.outline_table[asd2])
-#                if len(tst2) == 0:
-#                    print "Section Empty"
-#                    break
-#                section = Chunks(table.output_Outline(tst2))
-#                section.create_Chunks(heading = "Level {0} - Section {1} - Outline".format(str(table.level+1),i),
-#                                  footing = "Select Outline Number" ) 
-#                print section.goto_Chunk(1) 
-#            break
-#        for j in range(len(table.outline_table)):
-#            if i in table.outline_table[j][0]:
-#                if table.outline_table[j][2] == "":
-#                    section = Chunks(table.output_Outline(table.outline_table[j+1:]))
-#                    section.create_Chunks(heading = "Section Empty - Outline",
-#                                          footing = "Select Outline Number" ) 
-#                    print section.goto_Chunk(1) 
-#                    break
-#                else:
-#                    section = Chunks(table.txt_Item(i))
-#                    section.create_Chunks()
-#                    print section.goto_Chunk(1)
-#                    break
-#        continue
-#                    
-            
-            
+    for i in numbers:
+        if table.lvl==True:
+            table.select=True; section = Chunks(table.output_Outline(chap=i))
+            section.create_Chunks(heading = "Section {0} - Level {1} Outline".format(i,str(table.level+1)))
+            print section.goto_Chunk(); table.lvl=False
+        elif table.txt_Check(i):
+            table.expand[numbers[0]] = 0
+            section = Chunks(table.txt_Item(i))
+            section.create_Chunks(heading = "Section {0}".format(i)) 
+            print section.goto_Chunk() 
+        else:
+            table.select=True
+            section = Chunks(table.output_Outline(chap=i))
+            section.create_Chunks(heading = "Section {0} - Outline".format(i)) 
+            print section.goto_Chunk() 
+    
+    if "exit" in s:
+        break
+    if "next" in s:
+        print section.next_Chunk()
+
             
             
             

@@ -64,7 +64,6 @@ class Chunks(str):
         self.size = 140
         self.text = text
         self.chunk_list=[]
-        self.find_chunks=[]
         self.position=0
     
     def __str__(self):
@@ -143,15 +142,17 @@ class Chunks(str):
         self.chunk_list = chunks
         
     def find_Chunks(self,word):
-        res=[]
-        for i in range(len(self.chunk_list)):
-            findword = finder(r'{0}'.format(word.lower().decode('utf-8')),self.chunk_list[i])
+        chunks=[]
+        for i in range(1,len(self.chunk_list)):
+            findword = finder(r'{0}'.format(word),unicode(self.chunk_list[i]))
             if findword.found():
-                res.append(i+1)
-        if len(res) > 0:
-            return res
+                chunks.append(self.chunk_list[i])
+        if len(chunks) > 0:
+            self.chunk_list = chunks
+            return True
         else:
-            return None
+            return False
+                
     
     def next_Chunk(self):
         self.position+=1; return self
