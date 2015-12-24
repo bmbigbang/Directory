@@ -147,11 +147,4 @@ class Corrector(object):
         else:
             return None 
             
-                
-#    def spellcheck(self,word):
-#        d = enchant.Dict("en_US")
-#        if d.check(word.lower()) == False:
-#            return d.suggest(word.lower())
-#        else:
-#            return True   
-            
+
