@@ -36,28 +36,7 @@ class Options(list):
         
     def __list__(self):
         return self
-        
-#test = Options()
-#test.add_Option("0 - Ratings : 1")
-#print test
-#for j in [1,2,3,4]:
-#    if opts == None:
-#        opts = Options(heading="By ({0}) Did you mean: ".format('test'),
-#                           footing="Please choose.")
-#    opts.add_Option(content="{0}".format(j))
-#    
-#    if opts:
-#                ch = opts.select_Option(opts.print_Options())
-#                corr.append([i,str(opts[ch][1])])
-#            opts = None
-#        print corr
-#        for k in corr:
-#            if str(k[1]) in self.corrected:
-#                self.corrected[str(k[1])]= [k[0]]
-#            else:
-#                self.corrected[str(k[1])].append(k[0])
-#        return com.disting(command)['words']           
-
+                  
 
 class Chunks(str):
     def __init__(self,text):
@@ -148,8 +127,7 @@ class Chunks(str):
             if findword.found():
                 chunks.append(self.chunk_list[i])
         if len(chunks) > 0:
-            self.chunk_list = chunks
-            return True
+            return chunks
         else:
             return False
                 
@@ -163,21 +141,4 @@ class Chunks(str):
         else:
             return "Number out of range."
 
-        
-    
 
-#testtext="""athethaethaeathethaethaeathethaethaeathethaethaeathethaetha
-#eathethaethaeathethaethaeathethaethaeathethaethaeathethaethaeathethaethae
-#athethaethaeathethaethaeathethaethaeathethaethaeathethaethaeathethaethaeath
-#athethaethaeathethaethaeathethaethaeathethaethaeathethaethaeathethaethaea
-#athethaethaeathethaethaeathethaethaeathethaethaeathethaethaeathethaethae
-#\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"""
-#
-#test = Chunks(testtext)
-#test.create_Chunks(footing="test text:")
-#
-#
-#
-#
-#print map(lambda x:len(x),test.chunk_list)
-#print test.find_Chunks('athe')

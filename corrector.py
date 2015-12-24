@@ -17,7 +17,7 @@ class Corrector(object):
                          "langs":["eng","spa"],
                          "food":[],
                          "main":["exit","time","directory","next","previous",
-                         'help','list',"places"],
+                         'help','list',"places","outline","find"],
                          "locations":['london', 'paris', 'sydney', 'san fransisco'],
                          "dirtypes":[],
                          "outline":["exit","next","expand","tables","goto","level",
@@ -44,7 +44,6 @@ class Corrector(object):
                     continue
 
     def disting(self,text):
-        
         sptok = tokenizer(text);tokens = sptok['tokens']
         entities= sptok['entities']; types=sptok['types']
         dicfin = {'tokens':tokens,'entities':entities,'types':types,
@@ -81,8 +80,6 @@ class Corrector(object):
         return temp
     
     def match(self,word):
-        if word == "find":
-            return [("find",11)]
         if word in self.commands[self.scope] or len(word)==1:
             return [("None",10)]
         if self.matchHist(word) != None:
