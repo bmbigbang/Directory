@@ -71,30 +71,9 @@ def vector(sentence):
             data[k][i] = float(data[k][i])            
     return data
 
-def filter_Concepts(a,b,c):
+def filter_Concepts(a,b,c="food"):
     base="http://51.255.161.235/api/filter/"
     addressurl = base + urllib.quote_plus(a + "&" + b + "&" + c)
     req = urllib2.Request(addressurl)
     html = urllib2.urlopen(req).read().decode("utf-8")
     return html
-
-#doc = "food pizza pasta chinese weather"
-#docv = vector(doc)      
-#i= filterConcepts(docv["food"],docv["chinese"])    
-#j= numpy.convolve(docv["food"],docv["chinese"],mode="same")   
-#print numpy.inner(i[0],docv["pizza"])," - pizza to chinese through food"
-#print numpy.inner(i[0],docv["weather"])," - weather to pizza through food"
-#print numpy.inner(j,docv["pizza"])," - pizza to chinese through food"
-#print numpy.inner(j,docv["weather"])," - weather to chinese through food"
-#print numpy.inner(docv["food"],docv["chinese"])," - food to chinese"
-#print numpy.inner(docv["pizza"],docv["chinese"])," - pizza to chinese"
-
-
-#print similarity("london_pizza london","food fancy_store",sort=False,average=True)
-        
-            
-            
-            
-        
-        
-    
