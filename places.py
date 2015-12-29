@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec  8 09:22:34 2015
+
+@author: ardavan
+"""
 import json,urllib2,operator,re,urllib
 from options import Options,Chunks
 from misc import finder,alphabet
@@ -7,9 +13,11 @@ from spacyapi import similarity
 class Directory(object):
     def __init__(self,args):
         self.args = args
+        self.locs = []
+        self.history = {}
         
-    def run(self,disting):
-        types=[];keywords=[];d=[];hlp = Helper()
+    def run(self,disting,his):
+        types=[];keywords=[];d=[];hlp = Helper(); self.history = his
         test2 = similarity(" ".join(self.args)," ".join(hlp.dirtypes()),sort=True,average=False)
         for s in self.args:
             for k in test2[s][:4]:
@@ -17,40 +25,41 @@ class Directory(object):
                     types.append(k[0])
                     if (s in d) == False:
                         d.append(s)
-        for i in d:
-            keywords.append(s)
-            del self.args[self.args.index(i)]
-        d=[]
-        test4 = similarity(" ".join(self.args)," ".join(hlp.addresstypes()),average=True) 
+
+        test4 = similarity(" ".join([i for i in self.args if not i in d])," ".join(hlp.addresstypes()),sort=True,average=False) 
         for wo in test4:
             for keyword in test4[wo]:
                 if keyword[-1]>=0.5:
                     break
-                elif (i in d) == False:
-                    d.append(i)
-        for i in d:
-            del self.args[self.args.index(i)] 
-        others=disting['numbers']+disting['splits']
+                elif (wo in d) == False:
+                    d.append(wo)
         
+        others=disting['numbers']+disting['splits']  
+        found, index = self.check_Location(" ".join([i for i in self.args if not i in d]+others))
+        if found:
+            self.locs = self.history[index]     
         types = "&types=" + "|".join(types)
         keywords= "&keyword="+ "+".join(keywords)
-        address = "address="+"+".join(self.args+others)
-        base = "https://maps.googleapis.com/maps/api/geocode/json?"
-        print """directory section active."""
-
+        address = "address="+"+".join([i for i in self.args if not i in d]+others)
         key="&key=AIzaSyAgcnAoMCuhgMwXLXwRuGiEZmP0T-oWCRM"
-        addressurl = base + address + key
-        req = urllib2.Request(addressurl)
-        html = urllib2.urlopen(req).read()
-        addressdata = json.loads(html)
-        try:
-            lat = str(addressdata['results'][0]['geometry']['location']['lat'])
-            lng = str(addressdata['results'][0]['geometry']['location']['lng'])
-            location= lat+","+ lng
-            location = "location=" + location
-        except IndexError:
+            
+        if len(self.locs) == 0:
+            base = "https://maps.googleapis.com/maps/api/geocode/json?"
+            addressurl = base + address + key
+            req = urllib2.Request(addressurl)
+            html = urllib2.urlopen(req).read()
+            addressdata = json.loads(html)
+            for i in addressdata['results']:
+                self.locs.append([i["formatted_address"],
+        str(i['geometry']['location']['lat'])+","+str(i['geometry']['location']['lng'])])
+        if len(self.locs) > 1:
+            return self.locs," ".join([i for i in self.args if not i in d]+others)
+        if len(self.locs) == 0:
             print "location not found, please try again"
             return None, None
+                    
+        location = self.locs[0][1]
+        location = "location=" + location
 
         base = "https://maps.googleapis.com/maps/api/place/radarsearch/json?"
     
@@ -60,7 +69,7 @@ class Directory(object):
         req = urllib2.Request(final)
         html = urllib2.urlopen(req).read()
         data = json.loads(html)
-    
+        print final
         base2 = "https://maps.googleapis.com/maps/api/place/details/json?"
         results = {};resultsratings = {}
         for i in range(4):
@@ -95,9 +104,18 @@ class Directory(object):
         
         resultsort = sorted(resultsratings.items(),key = operator.itemgetter(1),reverse=True)
         return results,resultsort
-    
-
-
             
-    
+    def check_Location(self,inp):
+        found = True; index = None
+        if len(self.history)==0:
+            return False,None
+        for j in self.history:
+            for i in inp.split():
+                if i in j.split():
+                    continue
+                else:
+                    found = False
+            if found:
+                index = j; break
+        return found,index
 

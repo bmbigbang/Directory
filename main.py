@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+Created on Tue Dec  8 09:22:34 2015
 
+@author: ardavan
+"""
 
 from misc import finder,alphabet
 from places import Directory
@@ -12,6 +16,7 @@ class Main(object):
     def __init__(self):
         self.main = Corrector()
         self.match = ""
+        self.matchgeo = ""
         self.commands = []
         self.option = Options()
         self.display = Chunks("")
@@ -20,18 +25,19 @@ class Main(object):
         self.find = Chunks("")
         self.find.create_Chunks()
         self.table = Outline()
+        self.location_History = {}
 
     def run(self):
         hlp = Helper();br=True;results={};resultsort=[];correcting = False
         while br:  
-            if correcting:
+            if correcting or self.matchgeo:
                 pass
             else:
                 command = raw_input("SMS in: ")
-            t,option,word = self.process(unicode(command))
-            words = t[0];disting = t[1][-1]
-
-            if option:
+            if not self.matchgeo:
+                t,option,word = self.process(unicode(command))
+                words = t[0];disting = t[1][-1]
+            if option and len(resultsort)==0:
                 self.option = option;self.match = word
                 if len(self.display) > 0 :
                     self.last_Display = self.display
@@ -58,16 +64,28 @@ class Main(object):
                         word = "find";self.option = Options()
                     else:
                         self.option = Options();correcting = True
-                        command = " ".join(disting['tokens']); continue    
+                        command = " ".join(disting['tokens']); continue
+                if ch!=None and type(resultsort)!=unicode:
+                    text = "{0} - Ratings : {1}".format(resultsort[ch][0],resultsort[ch][1])
+                    text += "\n" +" Telephone Number: " + results[resultsort[ch][0]][1]
+                    text += "\n Address: "+results[resultsort[ch][0]][0]
+                    self.display = Chunks(text)
+                    self.display.create_Chunks()
+                    print self.display.goto_Chunk()
+                    self.option = Options();continue
+                if ch!=None and type(resultsort)==unicode:
+                    self.matchgeo = [results[ch]]; self.location_History[resultsort] = [results[ch]]
+                    disting = t[1][-2]; words = disting['words'];self.option = Options()
+                    continue
+
             correcting = False
                                
             if word == "find" or "find" in words:
-                del disting['tokens'][disting['tokens'].index("find")]
                 if word == "find":
                     self.find = self.last_Display
                 else:
                     self.find = self.display
-                expand = self.find.find_Chunks(" ".join(disting['tokens']))
+                expand = self.find.find_Chunks(" ".join([i for i in disting['tokens'] if i!="find"]))
                 if expand!=False:
                     self.find.chunk_list = expand
                     print self.find.goto_Chunk()
@@ -78,37 +96,33 @@ class Main(object):
             for k in range(len(words)):
                 dirfin = finder(r'directory|places',words[k])   
                 if dirfin.found():
-                    del words[k]
                     if "list" in words:
                         self.display = Chunks(",".join(hlp.dirtypes()).replace("_"," "))
                         self.display.create_Chunks(heading="List of types of places:")
-                        print self.display.goto_Chunk()
-                        break
-                    direc=Directory(words)
-                    results,resultsort = direc.run(disting)
+                        print self.display.goto_Chunk(); break
+                    direc=Directory([i for i in words if i!="directory" or i!="places"])
+                    if len(self.matchgeo) > 0:
+                        direc.locs=self.matchgeo; self.matchgeo = ""
+                    results,resultsort = direc.run(disting,self.location_History)
                     if results == None:
-                        words=[];break
+                        break
+                    elif type(resultsort) == unicode:
+                        for i in results:
+                            self.option.add_Option(content="{0}".format(i[0].encode('utf-8')))
+                        self.display = Chunks(self.option.print_Options())
+                        self.display.create_Chunks(heading="By {0} did you mean:".format(str(resultsort)),
+                              footing="Please choose a location. ")
+                        print self.display.goto_Chunk(); break                        
+                            
                     for i in resultsort:
                         self.option.add_Option(content="{0} - Ratings : {1}".format(i[0].encode('utf-8'),str(i[1])))
                     self.display = Chunks(self.option.print_Options())
                     self.display.create_Chunks(heading="Available places found nearby:",
                               footing="Please choose an option. ")
-                    print self.display.goto_Chunk()
-                    words = [];break
-                if len(self.option)>0 and len(words[k])==1:
-                    ch = self.option.select_Option(words[k])
-                    if ch!=None and len(resultsort)>0:
-                        text = "{0} - Ratings : {1}".format(resultsort[ch][0],resultsort[ch][1])
-                        text += "\n" +" Telephone Number: " + results[resultsort[ch][0]][1]
-                        text += "\n Address: "+results[resultsort[ch][0]][0]
-                        self.display = Chunks(text)
-                        self.display.create_Chunks()
-                        print self.display.goto_Chunk()
-                        self.option = Options();continue
-                
+                    print self.display.goto_Chunk(); break     
+                        
                 outfin = finder(r'outline',words[k])
                 if outfin.found():
-                    del words[k]
                     with open("textblock.txt","rb") as f:
                         textblock= f.read().decode("string_escape")
                     for i in range(len(textblock)):
@@ -116,16 +130,16 @@ class Main(object):
                             textblock= textblock[:i]+unichr(int(textblock[i+2:i+6],base=16)).encode("utf-8")  +textblock[i+6:]
                     f.close()
                     self.table.add_TxtBlock(textblock)
-                    if self.table.run(words,disting['numbers']) != False:
-                        self.display = self.table.run(words,disting['numbers'])
+                    if self.table.run([i for i in words if i !="outline"],disting['numbers']) != False:
+                        self.display = self.table.run([i for i in words if i !="outline"],disting['numbers'])
                         print self.display.goto_Chunk(); break
                 
                 exifin = finder(r'exit',words[k])
                 if exifin.found():
-                    br=False;words=[];break   
+                    br=False;break   
                 helpfin = finder(r'help',words[k])
                 if helpfin.found():
-                    print hlp;words=[];break
+                    print hlp;break
                 
                 if "next" in words[k]:
                     print self.display.next_Chunk(); break

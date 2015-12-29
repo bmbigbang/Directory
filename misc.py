@@ -1,10 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec  8 09:22:34 2015
+
+@author: ardavan
+"""
 import re
 class finder(object):
     """finder class to find text/date/time"""
-    def __init__(self,r,text):
+    def __init__(self,r,text,case=True):
         self.r = r
         self.text=text
-        self.search = re.search(self.r,self.text)
+        if case:
+            self.search = re.search(self.r,self.text,re.IGNORECASE)
+        else:
+            self.search = re.search(self.r,self.text)
                 
     def result(self):
         return self.search.string[self.search.start():self.search.end()]
