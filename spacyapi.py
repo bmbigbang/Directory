@@ -76,4 +76,4 @@ def filter_Concepts(a,b,c="food"):
     addressurl = base + urllib.quote_plus(a + "&" + b + "&" + c)
     req = urllib2.Request(addressurl)
     html = urllib2.urlopen(req).read().decode("utf-8")
-    return html
+    return float(html)

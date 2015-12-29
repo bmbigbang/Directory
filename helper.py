@@ -71,7 +71,7 @@ add a <text> to either of the above commands to include a message in your remind
     
     def addresstypes(self):
         places = ["london","uk","manchester","new_york","city","postcode",
-                  "address", "street","county","state","postal"]
+                  "address", "street","county","state","postal","paris"]
         return places
 
     def __str__(self,scope="main",detail=""):

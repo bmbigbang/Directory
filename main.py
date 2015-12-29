@@ -117,8 +117,8 @@ class Main(object):
                     for i in resultsort:
                         self.option.add_Option(content="{0} - Ratings : {1}".format(i[0].encode('utf-8'),str(i[1])))
                     self.display = Chunks(self.option.print_Options())
-                    self.display.create_Chunks(heading="Available places found nearby:",
-                              footing="Please choose an option. ")
+                    self.display.create_Chunks(heading="Nearby places:",
+                              footing="Choose for more details. ")
                     print self.display.goto_Chunk(); break     
                         
                 outfin = finder(r'outline',words[k])
@@ -149,7 +149,7 @@ class Main(object):
                         n = disting['numbers'][0]
                         num = int(n)
                     except:
-                        num = 1000
+                        num = -1
                     print self.display.goto_Chunk(num); break
 
     def process(self,command):

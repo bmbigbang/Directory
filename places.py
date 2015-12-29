@@ -8,7 +8,7 @@ import json,urllib2,operator,re,urllib
 from options import Options,Chunks
 from misc import finder,alphabet
 from helper import Helper
-from spacyapi import similarity
+from spacyapi import similarity,filter_Concepts
 
 class Directory(object):
     def __init__(self,args):
@@ -17,7 +17,7 @@ class Directory(object):
         self.history = {}
         
     def run(self,disting,his):
-        types=[];keywords=[];d=[];hlp = Helper(); self.history = his
+        types=[];keywords=[];d=["places"];hlp = Helper(); self.history = his
         test2 = similarity(" ".join(self.args)," ".join(hlp.dirtypes()),sort=True,average=False)
         for s in self.args:
             for k in test2[s][:4]:
@@ -25,24 +25,30 @@ class Directory(object):
                     types.append(k[0])
                     if (s in d) == False:
                         d.append(s)
-
-        test4 = similarity(" ".join([i for i in self.args if not i in d])," ".join(hlp.addresstypes()),sort=True,average=False) 
+        test4 = similarity(" ".join([i for i in self.args if not i in d])," ".join(hlp.addresstypes()),sort=False,average=True) 
         for wo in test4:
-            for keyword in test4[wo]:
-                if keyword[-1]>=0.5:
-                    break
-                elif (wo in d) == False:
-                    d.append(wo)
-        
+            if test4[wo][-1] <= 0.5:
+                continue
+            elif (wo in d) == False and wo in self.args:
+                d.append(wo)
+        p = []
+        if "food" in types and len([i for i in self.args if not i in d]) > 1 :
+            for j in self.args:
+                for k in d[1:]:
+                    if j != k and (not j in p):
+                        if filter_Concepts(j,k)>400:
+                            p.append(j)
+        d+=p
+
         others=disting['numbers']+disting['splits']  
         found, index = self.check_Location(" ".join([i for i in self.args if not i in d]+others))
         if found:
             self.locs = self.history[index]     
         types = "&types=" + "|".join(types)
-        keywords= "&keyword="+ "+".join(keywords)
+        keywords= "&keyword="+ "+".join(keywords+d[1:])
         address = "address="+"+".join([i for i in self.args if not i in d]+others)
         key="&key=AIzaSyAgcnAoMCuhgMwXLXwRuGiEZmP0T-oWCRM"
-            
+        print address
         if len(self.locs) == 0:
             base = "https://maps.googleapis.com/maps/api/geocode/json?"
             addressurl = base + address + key
@@ -66,10 +72,10 @@ class Directory(object):
         radius = "&radius=5000"
     
         final = base+location+radius+types+keywords+key
+        print final
         req = urllib2.Request(final)
         html = urllib2.urlopen(req).read()
         data = json.loads(html)
-        print final
         base2 = "https://maps.googleapis.com/maps/api/place/details/json?"
         results = {};resultsratings = {}
         for i in range(4):
