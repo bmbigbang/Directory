@@ -63,18 +63,18 @@ add a <text> to either of the above commands to include a message in your remind
         return dirs
     
     def foodtypes(self):
-        foods = ["italian","pizza","bacon","mexican","chinese","japanese",
-                 "barbeque","vietnamese","food","takeaway","delivery",
-                 "restaraunt","cafe","vegetarian","lebanese","indian","menu",
-                 "thai","indonesian","grill","bar","french","seafood","vegan"]
+        foods = ["italian", "pizza", "bacon", "mexican", "chinese", "japanese",
+                 "barbeque", "vietnamese", "food", "takeaway", "delivery",
+                 "restaraunt", "cafe", "vegetarian", "lebanese", "indian", "menu",
+                 "thai", "indonesian", "grill", "bar", "french", "seafood", "vegan"]
         return foods
     
     def addresstypes(self):
-        places = ["london","uk","manchester","new_york","city","postcode",
-                  "address", "street","county","state","postal","paris"]
+        places = ["london", "uk", "manchester", "new_york", "city", "postcode",
+                  "address", "street", "county", "state", "postal", "paris"]
         return places
 
-    def __str__(self,scope="main",detail=""):
+    def __str__(self, scope="main", detail=""):
         return self.helper[scope+detail]
 
 ##test = Helper('dine')
@@ -83,3 +83,95 @@ add a <text> to either of the above commands to include a message in your remind
 ##print test
 ##test.detail = 'schedule'
 ##print test
+
+accounting = ["bookkeeping", "auditing", "calculating", "reckoning", "balancing_the_books" ,
+              "advisory", "filing"]
+airport = ["travel", "landing", "runway"]
+amusement_park = ["funfair", "fair", "theme_park", "amusements", "carnival", "water_park"]
+aquarium = ["aquatic_museum", "sea_life"]
+art_gallery = ["exhibition", "showcase"]
+atm = ["cash_machine", "cash", "money", "bank_notes"]
+bakery = []
+bank = ["finance", "loans"]
+bar = ["drink", "social"]
+beauty_salon = ["hair", "coloring", "stylist"]
+bicycle_store = []
+book_store = ["reading"]
+bowling_alley = []
+bus_station = ["transport", "bus_stand", "public_transport", "bus_stop"]
+cafe = ["coffee_shop", "coffee"]
+campground = ["camping"]
+car_dealer = []
+car_rental = []
+car_repair = []
+car_wash = []
+casino = []
+cemetery = []
+church = []
+city_hall = []
+clothing_store = []
+convenience_store = []
+courthouse = []
+dentist = []
+department_store = []
+doctor = ["health_centre"]
+electrician = []
+electronics_store = []
+embassy = []
+establishment = []
+finance = []
+fire_station = []
+florist = ["flowers"]
+food = []
+funeral_home = []
+furniture_store = []
+gas_station = []
+general_contractor = []
+grocery_or_supermarket = []
+gym = ["excercise"]
+hair_care = []
+hardware_store = []
+health = []
+hindu_temple = []
+home_goods_store = []
+hospital = []
+insurance_agency = []
+jewelry_store = []
+laundry = []
+lawyer = ["barrister"]
+library = []
+liquor_store = []
+local_government_office = []
+locksmith = []
+lodging = []
+meal_delivery = []
+meal_takeaway = []
+mosque = []
+movie_rental = []
+movie_theater = []
+moving_company = []
+museum = []
+night_club = []
+painter = []
+park = []
+parking = []
+pet_store = []
+pharmacy = []
+physiotherapist = []
+place_of_worship = []
+plumber = []
+police = []
+post_office = []
+real_estate_agency = []
+restaurant = []
+roofing_contractor = []
+rv_park = []
+school = []
+subway_station = ["underground", "metro", "public_transport", "tram"]
+synagogue = []
+taxi_stand = []
+train_station = ["public_transport", "travel"]
+travel_agency = ["holidays"]
+university = []
+veterinary_care = []
+zoo = []

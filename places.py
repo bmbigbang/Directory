@@ -11,7 +11,7 @@ from spacyapi import similarity,filter_Concepts
 
 
 class Directory(object):
-    def __init__(self,args):
+    def __init__(self, args):
         self.args = args
         self.locs = []
         self.history = {}
@@ -54,7 +54,7 @@ class Directory(object):
         types = "&types=" + "|".join(types)
         keywords= "&keyword=" + "+".join(keywords + d[1:])
         address = "address=" + "+".join([i for i in self.args if i not in d+add] + others + add)
-        key="&key=AIzaSyAgcnAoMCuhgMwXLXwRuGiEZmP0T-oWCRM"
+        key="&key=---------"
         print address
         if len(self.locs) == 0:
             base = "https://maps.googleapis.com/maps/api/geocode/json?"
